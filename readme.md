@@ -32,5 +32,5 @@ to run programm produced **only by assembler**. Running any other file will resu
 
 The suggested format is ```.tf``` for programms.
 
-# -O3 versions
-For both kasm and kspu there are make options with -O3 flag: ```kasm_o3``` ```kspu_o3```. Run ```make fast``` to get them instead of just ```make all```
+## -O3 versions
+For both ```kasm``` and ```kspu``` there are make options with -O3 flag: ```kasm_o3``` ```kspu_o3```. Run ```make fast``` to get them instead of just ```make all```
