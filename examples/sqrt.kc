@@ -1,0 +1,130 @@
+jmp main
+
+zero:
+push 0
+out
+out_n
+halt
+
+one:
+push 1
+out
+out_n
+push rax
+out
+out_n
+halt
+
+two:
+push 2
+out
+out_n
+push rbx
+push rax
+out
+out
+out_n
+halt
+
+linear:
+push 999999
+push rbx
+push 0
+jne nice
+push rcx
+push 0
+je inf
+jmp zero
+nice:
+push 1
+out
+out_n
+push 0-1
+push rcx
+mul
+push rbx
+div
+out
+out_n
+halt
+
+inf:
+push 5
+push 1
+g_init
+push 102
+push 110
+push 105
+pop (1)
+pop (2)
+pop (3)
+g_draw
+push 1
+push 0
+div
+out
+out_n
+halt
+
+main:
+
+in
+in
+in
+
+pop rcx
+pop rbx
+pop rax
+
+;====== check if a == 0
+push rax
+push 0
+je linear
+;======
+
+push rbx * rbx
+push rax * rcx
+push 0-4
+mul
+add
+
+dup
+push 0
+jb zero
+
+sqrt
+pop rdx
+
+
+push rdx
+push 0
+jb zero
+
+push rbx
+push 0-1
+mul
+push rdx
+push 0-1
+mul
+add
+push  2 * rax
+div
+
+push rbx
+push 0-1
+mul
+push rdx
+add
+push  2 * rax
+div
+
+pop rbx
+pop rax
+
+push rdx
+push 0
+je one
+
+jmp two
+
+halt

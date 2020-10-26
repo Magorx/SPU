@@ -1,0 +1,31 @@
+jmp main
+
+fib:
+pop rdx
+pop rax
+pop rbx
+pop rcx
+
+push rdx
+push rax
+push 0
+je end
+
+push rcx
+out
+out_n
+
+push rbx
+push rbx + rcx
+push rax - 1
+call fib
+
+end:
+ret
+
+main:
+push 1
+push 1
+in
+call fib
+halt

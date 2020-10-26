@@ -1,0 +1,119 @@
+push 139
+push 34
+g_init
+
+; ================ main
+
+push 0
+pop rax
+
+main_loop:
+
+push 1 $ 139
+push 1 $ 34
+push 65 $ 90
+push 5 $ 15
+call draw_boom
+
+jmp main_loop
+
+; ================================
+
+draw_boom:
+pop rrx
+; ======== power
+pop [13]
+; ======== symb
+pop [12]
+; ======== y
+pop [11]
+; ======== x
+pop [10]
+push rrx
+
+push 0
+pop rfx
+for_db:
+
+push [10]
+push [11]
+push [12]
+push rfx
+
+call draw_circle
+push 0 $ 10
+push 0
+jne QQ
+QQ:
+g_draw
+
+push rfx + 1
+pop rfx
+push rfx
+push [13]
+jb for_db
+
+ret
+
+; ================================
+
+draw_circle:
+pop rrx
+pop rzx
+pop rsx
+pop ryx
+pop rxx
+push rrx
+
+push 0
+pop rix
+
+; =========== outer for
+for_dc_1:
+
+push 0
+pop rjx
+; =========== inner for
+for_dc_2:
+
+push rjx - rxx
+push 0.55
+mul
+pw2
+push rix - ryx
+pw2
+add
+sqrt
+
+; ========== if for char_set
+push rzx
+ja is_far
+push rix * 139
+push rjx
+add
+pop rex
+push rsx
+pop (rex)
+is_far:
+; ========== if for char_set end
+
+;   push rix * 139
+;   push rjx
+;   add
+;   out
+
+push rjx + 1
+pop rjx
+push rjx
+push 139
+jb for_dc_2
+; =========== inner for end
+
+push rix + 1
+pop rix
+push rix
+push 34
+jb for_dc_1
+; =========== outer for end
+
+ret

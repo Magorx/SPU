@@ -1,0 +1,30 @@
+main:
+push 1
+push 20
+bin_op $
+pop rbx
+
+loop:
+in
+pop rax
+push rax
+push rbx
+ja above
+below:
+push rax
+push rbx
+je win
+push 100.9
+out
+jmp end
+above_equal:
+push 9.001
+out
+end:
+jmp loop
+
+halt
+win:
+push 11.11
+out
+halt

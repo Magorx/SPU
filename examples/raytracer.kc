@@ -1,0 +1,930 @@
+jmp main
+; [200-500] -> vec3. vec3 is [double, double, double]
+; [200-300] -> const vec3
+; [500-600] -> ray.  ray is [vec3, vec3]
+; [1000-1500] -> primitives. shperes, acctually
+; [1] -> recursive_shift {int}
+; [2] -> tick_counter
+; [30-50] -> for's iterators
+; [100-200] -> scene settings
+; [195] -> sphere_cnt {int}
+; [102-104] - camera_pos {vec3}
+; [105-107] - camera_dir {vec3}
+; [115-117] - z_cam_axe
+; [118-120] - y_cam_axe
+; [121-123] - l_u_pixel
+; [108] - camera_dist {double}
+; [109-111] - light_pos
+; [10] - screen_height
+; [20] - screen_width
+; [35] - x in pixels idxing
+; [36] - y in pixels idxing
+; [37] - vram idx
+; [3] - vec_storage_begin
+; [401] - vec of (-1, -1, -1)
+; [145-152] - ray from scene
+; [160-169] - result interception: dist, point of, normal,
+; [170] - ret inter from sphere
+; [180] - tmp inter_2
+;
+
+
+; push 0
+; pop [10]
+; for_:
+;
+; push [10] + 1
+; pop [10]
+; push [10]
+; push max_itter
+; jb for_
+
+; j if_1_
+; ; FALSE CODE
+; jmp if_end_
+; if_1:
+; ; TRUE CODE
+; if_end_:
+
+init_constants:
+;===== screen_size
+push 138
+pop [20]
+push 34
+pop [10]
+;===== g_init
+push [20]
+push [10]
+g_init
+;===== vec storage shift
+push 300
+pop [3]
+;===== (-1, -1, -1) vec
+push 0-1
+push 0-1
+push 0-1
+push 401
+call vec_pop
+;=====
+ret
+
+init_camera:
+;===== pos
+push 0-20
+push 0
+push 0
+push 102
+call vec_pop
+;===== dir
+push 50
+push 0
+push 0
+push 105
+call vec_pop
+;===== axes
+;===== setting z axe and getting y axe
+push 0
+push 0
+push 1
+push 115
+call vec_pop
+
+push 105
+push 115
+push 118
+call vec_cross
+
+push 118
+call vec_norm
+;===== finding left upper pixel
+
+push 0.5 * [20]
+push 0.5 * [20]
+push 0.5 * [20]
+push [3]
+call vec_pop
+
+;===== adding y to dir point
+push [3]
+push 118
+push [3]
+call vec_mul
+
+push 105
+push [3]
+push [3]
+call vec_add
+;===== 
+;===== scaling camera at Z-axe for shitty letters in terminal
+push 1.63
+push 1.63
+push 1.63
+push 5666
+call vec_pop
+
+push 5666
+push 115
+push 115
+call vec_mul
+
+;===== adding z to dir point
+push 0.5 * [10]
+push 0.5 * [10]
+push 0.5 * [10]
+push 3 + [3]
+call vec_pop
+
+push 115
+push 3 + [3]
+push 3 + [3]
+call vec_mul
+
+push [3]
+push 3 + [3]
+push [3]
+call vec_add
+
+;===== now coords of left upper are in [3]
+
+push [3]
+push 121
+call vec_set
+
+;===== dont forget to reverse axes
+
+push 401
+push 118
+push 118
+call vec_mul
+
+push 401
+push 115
+push 115
+call vec_mul
+
+;=====
+ret
+
+init_spheres:
+;===== sphr_1
+push 5
+push 15
+push 0
+push 1000
+call vec_pop
+push 5
+pop [1003]
+;===== sphr_2
+push 4
+push 0
+push 5
+push 1004
+call vec_pop
+push 3.9
+pop [1007]
+;===== sphr_3
+push 0-5
+push 0-6
+push 0
+push 1008
+call vec_pop
+push 1.8
+pop [1011]
+;===== sphr_4
+push 0
+push 0
+push 0-1000
+push 1012
+call vec_pop
+push 998
+pop [1015]
+;=====
+push 4
+pop [195]
+;=====
+ret
+
+init_lights:
+;===== light_1
+push 0-10
+push 0
+push 0
+push 109
+call vec_pop
+ret
+
+
+main:
+call init_constants
+call init_camera
+call init_spheres
+call init_lights
+call render_loop
+;===== testing zone
+;=====
+halt
+
+render_loop:
+push 255
+g_fill
+call render_tick
+g_draw
+push [1009]
+push 1
+add
+pop [1009]
+
+push [1001]
+push 1
+sub
+pop [1001]
+
+jmp render_loop
+ret
+
+
+render_tick:
+;===== main part of ray_tracing
+
+;===== for x in range(width)
+push 0
+pop [35]
+for_rt_pixel_width:
+
+;===== for y in range(heiht)
+push 0
+pop [36]
+for_rt_pixel_height:
+;===== set vram idx
+push [35]
+push [20]
+mul
+push [36]
+add
+pop [37]
+;=====
+;===== here we draw
+
+;===== calculating pixel pos in 3d
+push [36]
+push [36]
+push [36]
+push 210
+call vec_pop
+push [35]
+push [35]
+push [35]
+push 220
+call vec_pop
+
+push 118
+push 210
+push 210
+call vec_mul
+
+push 115
+push 220
+push 220
+call vec_mul
+
+push 121
+push 210
+push 210
+call vec_add
+
+push 210
+push 220
+push 220
+call vec_add
+;===== 220 is now vec of pixel pos
+
+push 220
+push 102
+push 210
+call vec_sub
+
+push 210
+call vec_norm
+;===== [210] now is a ray from camera to scene, let put it in [150]
+push 210
+push 150
+call vec_set
+push 150
+call vec_norm
+;===== 147 will be ray origin
+push 102
+push 147
+call vec_set
+
+;===== getting output of intercept into 160
+push 0
+pop [160]
+call ray_intercept
+
+push [160]
+push 9999
+jb ray_true_hit
+jmp ray_hit_put_char_end
+ray_true_hit:
+;===== true
+;==== process distance into symbol
+
+;push [35]
+;out
+;push [36]
+;out
+;dup
+;out
+;out_n
+
+;push 164
+;push 150
+;call vec_dot
+;pw2
+;push 11
+;mul
+
+push 161
+push 109
+push 7777
+call vec_sub
+
+push 7777
+call vec_norm
+
+push 164
+push 7777
+call vec_dot
+
+;===== have to check, if dot > 0, light can't see it
+dup
+push 0
+ja cant_see
+lightning:
+pw2
+push 11
+mul
+
+jmp see_end
+cant_see:
+pop rzx
+push 0
+see_end:
+pop ([37])
+;===== end of if
+ray_hit_put_char_end:
+
+;===== end of draw
+
+push 1 + [36]
+pop [36]
+push [36]
+push [20]
+jb for_rt_pixel_height
+;===== for y end
+
+push 1 + [35]
+pop [35]
+push [35]
+push [10]
+jb for_rt_pixel_width
+;===== for x end
+
+;===== end, returning
+push 1 + [2]
+pop [2]
+ret
+
+;========== viewing ray operations
+
+ray_intercept:
+;===== set cur_inter on (+9999, ...)
+push 9999
+pop [170]
+
+push 0
+pop [40]
+for_ri_spheres:
+;=================== calling sphere_intercept for each sphere
+push 147
+push 150
+
+push 4 * [40]
+push 1000
+add
+
+push 180
+
+call sphere_intercept
+
+;===== check that target is not behind
+push 181
+push 147
+push 5555
+call vec_sub
+
+push 5555
+push 150
+call vec_dot
+push 0
+jb spheres_checker_for_end
+;=====
+
+;=================== if dist of new inter is less, then current ret
+push [180]
+push [170]
+jb if_sphere_hit
+jmp if_ri_closer_end
+if_sphere_hit:
+;===== true
+
+push [180]
+pop [170]
+push 181
+push 171
+call vec_set
+push 184
+push 174
+call vec_set
+
+;===== end
+if_ri_closer_end:
+;=================== if end
+
+;===================
+spheres_checker_for_end:
+push 1 + [40]
+pop [40]
+push [40]
+push [195]
+jb for_ri_spheres
+
+;======= set output interception to 160
+
+push [170]
+pop [160]
+push 171
+push 161
+call vec_set
+push 174
+push 164
+call vec_set
+
+;=======
+
+ret
+
+;================================== sphere interception !!!
+
+sphere_intercept:
+pop rrx
+pop [350]
+pop [351]
+pop [355]
+pop [356]
+push rrx
+
+push 9999
+pop [[350]]
+
+
+;====== descriminant
+;====== c_o to 365
+push [356]
+push [351]
+push 365
+call vec_sub
+
+;===== radius to [370]
+push [3 + [351]]
+pop [370]
+;======
+
+
+push [370]
+pw2
+
+push 365
+push 365
+call vec_dot
+
+push [355]
+push 365
+call vec_dot
+pw2
+sub
+sub
+;======
+
+;====== if disc < 0: return
+dup
+push 0
+ja disc_pos
+pop rax
+ret
+disc_pos:
+
+;push 25
+;div
+;push 11
+;mul
+
+;pop [[350]]
+;===== for now disc is on the stack
+sqrt
+dup
+
+push [355]
+push 365
+call vec_dot
+push 0-1
+mul
+;===== now b is on the top of stack
+pop rbx
+
+push rbx
+add
+pop [407]
+
+push rbx
+sub
+push 0-1
+mul
+pop [408]
+
+push [355]
+push 380
+call vec_set
+
+push 380
+call vec_norm
+
+push [408]
+push [408]
+push [408]
+push 383
+call vec_pop
+
+push 380
+push 383
+push 383
+call vec_mul
+
+push 383
+push [356]
+push 383
+call vec_add
+
+push 383
+push 181
+call vec_set
+
+push 383
+push [351]
+push 383
+call vec_sub
+
+push 383
+call vec_norm
+
+push 383
+push 184
+call vec_set
+
+push [408]
+pop [180]
+
+ret
+
+;==================================
+
+
+
+;========== vec operations
+
+vec_push:
+pop rrx
+pop rax
+push rrx
+
+push rax
+pop rax
+
+pop rrx
+push [rax + 0 + [3]]
+push [rax + 1 + [3]]
+push [rax + 2 + [3]]
+
+push rrx
+ret
+
+vec_pop:
+pop rrx
+pop rdx
+pop [rdx + 2]
+pop [rdx + 1]
+pop [rdx + 0]
+push rrx
+ret
+
+vec_set:
+pop rrx
+pop rdx
+pop rex
+push [rex]
+push [rex + 1]
+push [rex + 2]
+pop [rdx + 2]
+pop [rdx + 1]
+pop [rdx + 0]
+push rrx
+ret
+
+vec_out:
+pop rrx
+pop rdx
+push [rdx + 2]
+push [rdx + 1]
+push [rdx + 0]
+out
+out
+out
+out_n
+push rrx
+ret
+
+vec_len:
+pop rrx
+pop rex
+push [rex + 2]
+push [rex + 2]
+mul
+push [rex + 1]
+push [rex + 1]
+mul
+push [rex + 0]
+push [rex + 0]
+mul
+add
+add
+sqrt
+push rrx
+ret
+
+vec_norm:
+pop rrx
+pop rdx
+push rrx
+
+push rdx
+call vec_len
+pop rex
+
+push [rdx + 0]
+push rex
+div
+pop [rdx + 0]
+
+push [rdx + 1]
+push rex
+div
+pop [rdx + 1]
+
+push [rdx + 2]
+push rex
+div
+pop [rdx + 2]
+
+ret
+
+;============= vec_add
+vec_add:
+pop rrx
+; goal vec index
+pop rcx
+push rcx
+pop rcx
+; second vec index
+pop rbx
+push rbx
+pop rbx
+; first vec index
+pop rax
+push rax
+pop rax
+push rrx
+
+push [rbx]
+push [rax]
+add
+pop  [rcx]
+
+push [rbx + 1]
+push [rax + 1]
+add
+pop  [rcx + 1]
+
+push [rbx + 2]
+push [rax + 2]
+add
+pop  [rcx + 2]
+
+ret
+
+;============= vec_sub
+vec_sub:
+pop rrx
+; goal vec index
+pop rcx
+push rcx
+pop rcx
+; second vec index
+pop rbx
+push rbx
+pop rbx
+; first vec index
+pop rax
+push rax
+pop rax
+push rrx
+
+push [rax]
+push [rbx]
+sub
+pop  [rcx]
+
+push [rax + 1]
+push [rbx + 1]
+sub
+pop  [rcx + 1]
+
+push [rax + 2]
+push [rbx + 2]
+sub
+pop  [rcx + 2]
+
+ret
+
+;==========
+
+;============= vec_mul
+vec_mul:
+pop rrx
+; goal vec index
+pop rcx
+push rcx
+pop rcx
+; second vec index
+pop rbx
+push rbx
+pop rbx
+; first vec index
+pop rax
+push rax
+pop rax
+push rrx
+
+push [rbx]
+push [rax]
+mul
+pop  [rcx]
+
+push [rbx + 1]
+push [rax + 1]
+mul
+pop  [rcx + 1]
+
+push [rbx + 2]
+push [rax + 2]
+mul
+pop  [rcx + 2]
+
+ret
+
+;==========
+
+;============= vec_div
+vec_div:
+pop rrx
+; goal vec index
+pop rcx
+push rcx
+pop rcx
+; second vec index
+pop rbx
+push rbx
+pop rbx
+; first vec index
+pop rax
+push rax
+pop rax
+push rrx
+
+push [rax]
+push [rbx]
+div
+pop  [rcx]
+
+push [rax + 1]
+push [rbx + 1]
+div
+pop  [rcx + 1]
+
+push [rax + 2]
+push [rbx + 2]
+div
+pop  [rcx + 2]
+
+ret
+
+;==========
+
+;============= vec_dot
+vec_dot:
+pop rrx
+; second vec index
+pop rbx
+push rbx
+pop rbx
+; first vec index
+pop rax
+push rax
+pop rax
+push rrx
+
+push [rbx]
+push [rax]
+mul
+
+push [rbx + 1]
+push [rax + 1]
+mul
+
+push [rbx + 2]
+push [rax + 2]
+mul
+
+add
+add
+
+pop rax
+pop rrx
+push rax
+push rrx
+
+ret
+
+;==========
+
+;============= vec_cross
+vec_cross:
+pop rrx
+; goal vec index
+pop rcx
+push rcx
+pop rcx
+; second vec index
+pop rbx
+push rbx
+pop rbx
+; first vec index
+pop rax
+push rax
+pop rax
+push rrx
+;===== x
+push [rax + 1]
+push [rbx + 2]
+mul
+
+push [rax + 2]
+push [rbx + 1]
+mul
+sub
+;===== y
+push [rax + 2]
+push [rbx]
+mul
+
+push [rax]
+push [rbx + 2]
+mul
+sub
+;===== z
+push [rax]
+push [rbx + 1]
+mul
+
+push [rax + 1]
+push [rbx]
+mul
+sub
+;=====
+
+pop [rcx + 2]
+pop [rcx + 1]
+pop [rcx + 0]
+
+ret
+
+;==========
