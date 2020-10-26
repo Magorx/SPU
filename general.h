@@ -82,9 +82,8 @@
     #pragma GCC diagnostic ignored     "-Wunreachable-code"
     #pragma GCC diagnostic ignored     "-Wunused-const-variable"
 
-    #pragma GCC diagnostic ignored     "-Wunused-function"  //!!!!!!!!1
-    #pragma GCC diagnostic ignored     "-Wunused-parameter" //!!!!!!!!1
     #pragma GCC diagnostic ignored     "-Wunused-variable"
+    #pragma GCC diagnostic ignored     "-Wunused-result"
 
     #pragma GCC diagnostic warning     "-Wpragmas"
 #endif

@@ -134,10 +134,12 @@ OPDEF(in, 50, 0, {
 })
 
 OPDEF(out, 51, 0, {
+	VERIFY_STACK_NOT_EMPTY();
 	OUT();
 })
 
 OPDEF(out_n, 52, 0, {
+	VERIFY(cake != NULL);
 	OUT_N();
 })
 
@@ -200,6 +202,7 @@ OPDEF(ret, 109, 0, {
 })
 
 OPDEF(halt, 255, 0, {
+	cake->halt_flag = 1;
 	return -1;
 })
 

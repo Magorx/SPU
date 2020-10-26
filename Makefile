@@ -1,8 +1,8 @@
-CUR_PROG = cpu
+CUR_PROG = kspu
 
-all: assembler cpu
-	./assembler
-	./cpu
+all: kasm kspu
+
+fast: kasm_o3 kspu_o3
 
 ifndef VERBOSE
 .SILENT:
@@ -14,20 +14,17 @@ WARNINGS = -Wall -Wno-multichar
 STANDARD =  
 CFLAGS = $(STANDARD) $(WARNINGS)
 
-cpu: cpu.c cpu.h general.h stack.h opcodes.h opdefs.h
-	$(CC) $(CFLAGS) cpu.c -o cpu -lm
+kspu: cpu.c cpu.h general.h stack.h opcodes.h opdefs.h
+	$(CC) $(CFLAGS) cpu.c -o kspu -lm
 
+kspu_o3: cpu.c cpu.h general.h stack.h opcodes.h opdefs.h
+	$(CC) $(CFLAGS) cpu.c -o kspu -lm -O3
 
-assembler: assembler.c assembler.h general.h opcodes.h opdefs.h
-	$(CC) $(CFLAGS) assembler.c -o assembler
+kasm: assembler.c assembler.h general.h opcodes.h opdefs.h
+	$(CC) $(CFLAGS) assembler.c -o kasm
 
-cur_run: cpu assembler
-	make clear
-	./assembler
-
-run: cpu assembler
-	./assembler
-	./$(CUR_PROG)
+kasm_o3: assembler.c assembler.h general.h opcodes.h opdefs.h
+	$(CC) $(CFLAGS) assembler.c -o kasm
 
 valg: cur_run
 	make clear

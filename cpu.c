@@ -78,6 +78,8 @@ CPU *new_CPU() {
 
 	cpu->to_tick_graphics = 0;
 
+	cpu->halt_flag = 0;
+
 	return cpu;
 }
 
@@ -192,7 +194,7 @@ int CPU_stack_push(CPU *cake, const double value) {
 	return 0;
 }
 
-long long CPU_random(CPU *cake) {
+long long CPU_random() {
 	return randlong() % CPU_MAX_RANDOM_LONG;
 }
 
@@ -220,13 +222,13 @@ double CPU_symb_operation(CPU *cake, byte op, const double val_1, const double v
 }
 
 size_t CPU_read_size_t(CPU *cake) {
-	size_t val;
+	size_t val = 0;
 	ByteIP_get_size_t(cake->bip, &val);
 	return val;
 }
 
 byte CPU_read_byte(CPU *cake) {
-	byte val;
+	byte val = 0;
 	ByteIP_get_byte(cake->bip, &val);
 	return val;
 }
@@ -274,14 +276,14 @@ int CPU_jump(CPU *cake, size_t rip) {
 
 #define OPDEF(opname, opcode, oparg, code)  \
 int CPU_execute_ ## opname (CPU *cake) {	\
-	byte reg_idx;							\
-	byte byte_reg;							\
-	double val;								\
-	double val_1;							\
-	double val_2;							\
-	size_t new_rip;							\
-	byte type;								\
-	double idx;								\
+	byte reg_idx    = 0;					\
+	byte byte_reg   = 0;					\
+	double val      = 0;					\
+	double val_1    = 0;					\
+	double val_2    = 0;					\
+	size_t new_rip  = 0;					\
+	byte type       = 0;					\
+	double idx      = 0;					\
 	{code}									\
 	return 0;								\
 }
@@ -411,6 +413,10 @@ int CPU_stop_thread(CPU *cake, Thread *thread) {
 
 int CPU_tick(CPU *cake) {
 	VERIFY(cake != NULL);
+
+	if (cake->halt_flag) {
+		return -1;
+	}
 
 	size_t thr_idx = cake->next_thread;
 	size_t thrs_tried = 0;

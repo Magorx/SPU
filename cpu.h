@@ -57,6 +57,8 @@ typedef struct CPU_t {
 	byte to_tick_graphics;
 	size_t screen_width;
 	size_t screen_height;
+
+	byte halt_flag;
 } CPU;
 
 CPU *new_CPU();
