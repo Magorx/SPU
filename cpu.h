@@ -64,9 +64,9 @@ typedef struct CPU_t {
 CPU *new_CPU();
 int delete_CPU(CPU *cake);
 
-size_t CPU_stack_size(CPU *cake);
-double CPU_stack_top (CPU *cake);
-int    CPU_stack_push(CPU *cake, const double value);
+size_t CPU_stack_size	(CPU *cake);
+double CPU_stack_top 	(CPU *cake);
+int    CPU_stack_push	(CPU *cake, const double value);
 
 int CPU_read_value      (CPU *cake, double *value);
 int CPU_execute_push    (CPU *cake);
