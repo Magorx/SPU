@@ -1,4 +1,6 @@
 # Assembler + CPU
+<img src="https://github.com/KingCakeTheFruity/SPU/blob/main/showcase/ray_tracing.jpg">
+(Screenshot of ray-tracing as an example of a programm writen in this assembler)
 
 The set of commands can be changed, look for ```opdefs.h``` file. Add just one block like others and use it in your assembler! (But don't try to use same opcodes for different opnames)
 
