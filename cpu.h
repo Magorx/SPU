@@ -69,18 +69,6 @@ double CPU_stack_top 	(CPU *cake);
 int    CPU_stack_push	(CPU *cake, const double value);
 
 int CPU_read_value      (CPU *cake, double *value);
-int CPU_execute_push    (CPU *cake);
-int CPU_execute_out     (CPU *cake);
-int CPU_execute_pop     (CPU *cake);
-int CPU_execute_add     (CPU *cake);
-int CPU_execute_sub     (CPU *cake);
-int CPU_execute_mul     (CPU *cake);
-int CPU_execute_div     (CPU *cake);
-int CPU_execute_sin     (CPU *cake);
-int CPU_execute_cos     (CPU *cake);
-int CPU_execute_sqrt    (CPU *cake);
-int CPU_execute_in      (CPU *cake);
-
 int CPU_execute_command (CPU *cake);
 
 int CPU_set_cpu_context    (CPU *cake, const Thread *thread);

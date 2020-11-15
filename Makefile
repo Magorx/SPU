@@ -2,6 +2,9 @@ CUR_PROG = kspu
 
 all: kasm kspu
 
+run: all
+	./$(CUR_PROG)
+
 fast: kasm_o3 kspu_o3
 
 ifndef VERBOSE
@@ -26,7 +29,7 @@ kasm: assembler.c assembler.h general.h opcodes.h opdefs.h
 kasm_o3: assembler.c assembler.h general.h opcodes.h opdefs.h
 	$(CC) $(CFLAGS) assembler.c -o kasm
 
-valg: cur_run
+valg: all
 	make clear
 	valgrind --leak-check=full --track-origins=yes -s ./$(CUR_PROG)
 
