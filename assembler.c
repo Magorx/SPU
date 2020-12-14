@@ -1,5 +1,9 @@
 #include "assembler.h"
 
+int VERBOUSE = 0;
+#define LOG_LVL(lvl) if (VERBOUSE > lvl)
+#define LOG LOG_LVL(0)
+
 // The assembler itself =======================================================
 
 int main(const int argc, const char **argv) {
@@ -10,6 +14,10 @@ int main(const int argc, const char **argv) {
 	}
 	if (argc > 2) {
 		output_file = argv[2];
+	}
+
+	if (argc > 3) {
+		sscanf(argv[3], "%d", &VERBOUSE);
 	}
 
 	assemble_file(input_file, output_file);
@@ -46,6 +54,11 @@ int Label_compare(const Label *first, const Label *second) {
 		++f;
 		++s;
 	}
+
+	if ((*f && !(*s)) || (*s && !(*f))){
+		return -1;
+	}
+
 	return 0;
 }
 
@@ -221,13 +234,12 @@ int assemble_file(const char *fin_name, const char* fout_name) {
 
     ByteOP_put(bop, &signature, sizeof(Signature));
 
-    printf("[SAT]<assembler>: Starting assembling\n");
-    printf("[   ]<         >: [filename](%s) [lines_cnt](%zu)\n", fin_name, fin.lines_cnt);
-    printf("\n");
+    LOG printf("[SAT]<assembler>: Starting assembling\n");
+    LOG printf("[   ]<         >: [filename](%s) [lines_cnt](%zu)\n", fin_name, fin.lines_cnt);
+    LOG printf("\n");
 
     ByteOP_put_string(lst, "------\n");
-    ByteOP_put_string(lst, "------\n");
-    printf("------\n");
+    LOG printf("------\n");
 
     Label **lables_used    = calloc(fin.lines_cnt, sizeof(Label));
     size_t l_used_cnt = 0;
@@ -259,11 +271,11 @@ int assemble_file(const char *fin_name, const char* fout_name) {
     			size_t lable_len = strlen((char*) line->string);
     			line->string[lable_len - 1] = '\0';
     			--lable_len;
-    			printf("     |");
+    			LOG printf("     |");
     			for (size_t i = 0; i < 3 * STANDART_BYTE_LINE_BYTES_COUNT - 2 - lable_len; ++i) {
-    				printf(" ");
+    				LOG printf(" ");
     			}
-    			printf("%s ->|\n", lables_found[l_found_cnt]->name);
+    			LOG printf("%s ->|\n", lables_found[l_found_cnt]->name);
     			listed = 1;
     			++l_found_cnt;
     			break;
@@ -273,7 +285,7 @@ int assemble_file(const char *fin_name, const char* fout_name) {
     	}
 
     	// Listing =====
-    	if (!listed) {
+    	LOG if (!listed) {
 	    	printf("%.4ld | ", bop->cur_ptr - bop->buffer);
 	    	size_t bytes_prined = 0;
 	    	for (size_t i = 0; i < (size_t) (bop->cur_ptr - bop->buffer - before_line_index); ++i) {
@@ -323,16 +335,16 @@ int assemble_file(const char *fin_name, const char* fout_name) {
     bop->size -= sizeof(Signature);
     ByteOP_to_file(bop, fout_name);
 
-    printf("------\n");
+    LOG printf("------\n");
 
-    printf("%.4ld - %s\n", signature.file_size, fout_name);
+    LOG printf("%.4ld - %s\n", signature.file_size, fout_name);
 
     delete_ByteOP(bop);
 
    	ByteOP_to_file(lst, "lst.lst");
    	delete_ByteOP(lst);
 
-    printf("\n[END]<assembler>: Done assembling\n");
+    LOG {printf("\n[END]<assembler>: Done assembling\n");}
 
 	return 0;
 }

@@ -33,7 +33,7 @@
 
 #define BINARY_OP(op, val_2, val_1) CPU_symb_operation(cake, op, val_2, val_1)
 
-#define OUT() printf("%lg ", CPU_stack_pop(cake))
+#define OUT() printf("%lg", CPU_stack_pop(cake))
 #define OUT_N() printf("\n")
 #define IN_VAL() scanf("%lg", &val)
 
@@ -90,9 +90,73 @@ OPDEF(mul, 13, 0, {
 })
 
 OPDEF(div, 14, 0, {
+	VERIFY_STACK_HAS_TWO_ELEMS();
 	VAL_1 = POP();
 	VAL_2 = POP();
 	PUSH(VAL_2 / VAL_1);
+})
+
+OPDEF(lt, 115, 0, {
+	VERIFY_STACK_HAS_TWO_ELEMS();
+	VAL_1 = POP();
+	VAL_2 = POP();
+	PUSH(VAL_2 < VAL_1);
+})
+
+OPDEF(gt, 116, 0, {
+	VERIFY_STACK_HAS_TWO_ELEMS();
+	VAL_1 = POP();
+	VAL_2 = POP();
+	PUSH(VAL_2 > VAL_1);
+})
+
+OPDEF(le, 117, 0, {
+	VERIFY_STACK_HAS_TWO_ELEMS();
+	VAL_1 = POP();
+	VAL_2 = POP();
+	PUSH(VAL_1 - VAL_2 > 0 || fabs(VAL_1 - VAL_2) < EPS);
+})
+
+OPDEF(ge, 118, 0, {
+	VERIFY_STACK_HAS_TWO_ELEMS();
+	VAL_1 = POP();
+	VAL_2 = POP();
+	PUSH(VAL_1 - VAL_2 < 0 || fabs(VAL_1 - VAL_2) < EPS);
+})
+
+OPDEF(eq, 119, 0, {
+	VERIFY_STACK_HAS_TWO_ELEMS();
+	VAL_1 = POP();
+	VAL_2 = POP();
+	PUSH(fabs(VAL_1 - VAL_2) < EPS);
+})
+
+OPDEF(neq, 120, 0, {
+	VERIFY_STACK_HAS_TWO_ELEMS();
+	VAL_1 = POP();
+	VAL_2 = POP();
+	PUSH(fabs(VAL_1 - VAL_2) > EPS);
+})
+
+OPDEF(l_or, 121, 0, {
+	VERIFY_STACK_HAS_TWO_ELEMS();
+	VAL_1 = POP();
+	VAL_2 = POP();
+	PUSH(fabs(VAL_1) > EPS || fabs(VAL_2) > EPS);
+})
+
+OPDEF(l_and, 122, 0, {
+	VERIFY_STACK_HAS_TWO_ELEMS();
+	VAL_1 = POP();
+	VAL_2 = POP();
+	PUSH(fabs(VAL_1) > EPS && fabs(VAL_2) > EPS);
+})
+
+OPDEF(pow, 15, 0, {
+	VERIFY_STACK_HAS_TWO_ELEMS();
+	VAL_1 = POP();
+	VAL_2 = POP();
+	PUSH(pow(VAL_2, VAL_1));
 })
 
 OPDEF(sin, 20, 0, {
@@ -138,9 +202,23 @@ OPDEF(out, 51, 0, {
 	OUT();
 })
 
-OPDEF(out_n, 52, 0, {
+OPDEF(out_c, 52, 0, {
+	VERIFY_STACK_NOT_EMPTY();
+	VAL = POP();
+	printf("%c", (char) VAL);
+})
+
+OPDEF(out_n, 55, 0, {
 	VERIFY(cake != NULL);
 	OUT_N();
+})
+
+OPDEF(swp, 56, 0, {
+	VERIFY_STACK_HAS_TWO_ELEMS();
+	VAL_1 = POP();
+	VAL_2 = POP();
+	PUSH(VAL_1);
+	PUSH(VAL_2);
 })
 
 OPDEF(jmp, 101, VALUE_LABEL, {
