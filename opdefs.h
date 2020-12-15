@@ -24,6 +24,8 @@
 #define RAM  cake->ram
 #define VRAM cake->vram
 
+#define VERIFY_RAM_FIT(idx) do {VERIFY(idx > 0 && idx < CPU_RAM_SIZE);} while (0)
+
 #define POP() CPU_stack_pop(cake)
 #define PUSH(val) CPU_stack_push(cake, val)
 
@@ -51,9 +53,11 @@ OPDEF(pop, 2, 1, {
 		REGISTERS[REG_IDX] = POP();
 	} else if (TYPE == VALUE_RAM) {
 		READ_IDX();
+		VERIFY_RAM_FIT(IDX);
 		RAM[IDX] = POP();
 	} else if (TYPE == VALUE_VRAM) {
 		READ_IDX();
+		VERIFY_RAM_FIT(IDX);
 		VRAM[IDX] = POP();
 	}
 })

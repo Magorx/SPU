@@ -251,12 +251,14 @@ int CPU_read_value(CPU *cake, double *value) {
 		double val = 0;
 		CPU_read_value(cake, &val);
 		size_t ram_index = (size_t) val;
+		VERIFY(ram_index > 0 && ram_index < CPU_RAM_SIZE);
 		*value = cake->ram[ram_index];
 	} else if (symb == VALUE_VRAM) {
 		double val = 0;
 		CPU_read_value(cake, &val);
-		size_t ram_index = (size_t) val;
-		*value = cake->vram[ram_index];
+		size_t vram_index = (size_t) val;
+		VERIFY(vram_index < cake->screen_width * cake->screen_height);
+		*value = cake->vram[vram_index];
 	} else {
 		double val_1 = 0;
 		double val_2 = 0;
