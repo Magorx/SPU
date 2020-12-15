@@ -199,7 +199,8 @@ int put_extract_line(const unsigned char **symb, ByteOP *bop) {
 			} else if (OPARGS[opcode] == VALUE_LABEL) {
 				return LABEL_USED;
 			} else {
-				printf("[ERR] Arguments for %d are ucked up\n", opcode);
+				printf("[ERR]<assembler>: bad arguments for %d\n", opcode);
+				return -1;
 			}
 		}
 	}
@@ -341,7 +342,7 @@ int assemble_file(const char *fin_name, const char* fout_name) {
 
     delete_ByteOP(bop);
 
-   	ByteOP_to_file(lst, "lst.lst");
+   	//ByteOP_to_file(lst, "lst.lst");
    	delete_ByteOP(lst);
 
     LOG {printf("\n[END]<assembler>: Done assembling\n");}

@@ -308,6 +308,7 @@ OPDEF(g_draw, 210, 0, {
 })
 
 OPDEF(g_fill, 211, 0, {
+	VERIFY_STACK_NOT_EMPTY();
 	VAL = POP();
 	for (size_t i = 0; i < cake->screen_height * cake->screen_width; ++i) {
 		cake->vram[i] = VAL;
