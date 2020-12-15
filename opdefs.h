@@ -24,7 +24,7 @@
 #define RAM  cake->ram
 #define VRAM cake->vram
 
-#define VERIFY_RAM_FIT(idx) do {VERIFY(idx > 0 && idx < CPU_RAM_SIZE);} while (0)
+#define VERIFY_RAM_FIT(idx) do {VERIFY(idx < CPU_RAM_SIZE);} while (0)
 
 #define POP() CPU_stack_pop(cake)
 #define PUSH(val) CPU_stack_push(cake, val)
